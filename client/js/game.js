@@ -1,9 +1,7 @@
 const TILE_WIDTH = 64;
 const TILE_HEIGHT = 32;
 const GRID_SIZE = 10;
-
 const TILE_SHAPE = [
-    
     0, -TILE_HEIGHT / 2,
     TILE_WIDTH / 2, 0,
     0, TILE_HEIGHT / 2,
@@ -41,19 +39,25 @@ function dessinerTile(tile, couleur, strokeColor = 0x1a5c1a) {
     tile.stroke({ width: 1, color: strokeColor });
 }
 
+function creerPersonnage(couleur) {
+
+    const perso = new PIXI.Graphics();
+    perso.rect(-12, -40, 24, 40);
+    perso.fill(couleur);
+    return perso;
+}
+
 async function initApp() {
 
     const app = new PIXI.Application();
 
     await app.init({
-
         width: window.innerWidth,
         height: window.innerHeight,
         background: 0x1a1a2e
     });
 
     document.body.appendChild(app.canvas);
-
     app.stage.eventMode = 'static';
     app.stage.hitArea = app.screen;
 
@@ -76,12 +80,11 @@ function creerGrille(mapContainer) {
             dessinerTile(tile, getCouleurTile(gx, gy));
             tile.x = pos.x;
             tile.y = pos.y;
-
+            tile.zIndex = gx + gy;
             mapContainer.addChild(tile);
             grille[gx][gy] = tile;
         }
     }
-
     return grille;
 }
 
@@ -90,11 +93,23 @@ async function init() {
     const app = await initApp();
 
     const mapContainer = new PIXI.Container();
+    mapContainer.sortableChildren = true;
     app.stage.addChild(mapContainer);
+
     mapContainer.x = window.innerWidth / 2;
     mapContainer.y = window.innerHeight / 2 - (GRID_SIZE - 1) * (TILE_HEIGHT / 2);
 
     const grille = creerGrille(mapContainer);
+
+    const joueur = creerPersonnage(0x4488ff);
+    let joueurGrilleX = 2;
+    let joueurGrilleY = 2;
+
+    const posJoueur = grilleVersEcran(joueurGrilleX, joueurGrilleY);
+    joueur.x = posJoueur.x;
+    joueur.y = posJoueur.y;
+    joueur.zIndex = joueurGrilleX + joueurGrilleY + 0.5;
+    mapContainer.addChild(joueur);
 
     let selectedTile = null;
     let selectedOriginalColor = null;
@@ -103,22 +118,25 @@ async function init() {
 
         const relX = event.global.x - mapContainer.x;
         const relY = event.global.y - mapContainer.y;
-
         const cell = ecranVersGrille(relX, relY);
 
         if (cell.x >= 0 && cell.x < GRID_SIZE && cell.y >= 0 && cell.y < GRID_SIZE) {
 
             if (selectedTile) {
-
                 dessinerTile(selectedTile, selectedOriginalColor);
             }
 
             const tile = grille[cell.x][cell.y];
             selectedOriginalColor = getCouleurTile(cell.x, cell.y);
-
             dessinerTile(tile, 0xffff00, 0xaaaa00);
-
             selectedTile = tile;
+
+            joueurGrilleX = cell.x;
+            joueurGrilleY = cell.y;
+            const nouvellePos = grilleVersEcran(joueurGrilleX, joueurGrilleY);
+            joueur.x = nouvellePos.x;
+            joueur.y = nouvellePos.y;
+            joueur.zIndex = joueurGrilleX + joueurGrilleY + 0.5;
         }
     });
 }
