@@ -1,3 +1,4 @@
+const BASE_PM = 3;
 const TILE_WIDTH = 64;
 const TILE_HEIGHT = 32;
 const GRID_SIZE = 10;
@@ -91,6 +92,47 @@ function creerGrille(mapContainer) {
     return grille;
 }
 
+function getCasesAtteignables(startX, startY, pm) {
+
+    const atteignables = [];
+    const visited = {};
+    const queue = [{ x: startX, y: startY, dist: 0 }];
+    visited[`${startX},${startY}`] = true;
+
+    const voisins = [
+        { dx: 1, dy: 0 },
+        { dx: -1, dy: 0 },
+        { dx: 0, dy: 1 },
+        { dx: 0, dy: -1}
+    ];
+
+    while (queue.length > 0) {
+
+        const current = queue.shift();
+
+        if (current.dist >0) {
+            atteignables.push({ x: current.x, y: current.y });
+        }
+
+        if (current.dist >= pm) continue;
+
+        for (const v of voisins) {
+
+            const nx = current.x + v.dx;
+            const ny = current.y + v.dy;
+            const key = `${nx},${ny}`;
+
+            if (nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE && !visited[key]) {
+
+                visited[key] = true;
+                queue.push ({ x: nx, y: ny, dist: current.dist + 1 });
+            }
+        }
+    }
+
+    return atteignables;
+}
+
 async function init() {
 
     const app = await initApp();
@@ -143,6 +185,8 @@ async function init() {
             joueur.zIndex = joueurGrilleX + joueurGrilleY + 0.5;
         }
     });
+
+    let joueurPM = BASE_PM;
 }
 
 init();
