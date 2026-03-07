@@ -44,6 +44,7 @@ function creerPersonnage(couleur) {
     const perso = new PIXI.Graphics();
     perso.rect(-12, -40, 24, 40);
     perso.fill(couleur);
+
     return perso;
 }
 
@@ -52,6 +53,7 @@ async function initApp() {
     const app = new PIXI.Application();
 
     await app.init({
+
         width: window.innerWidth,
         height: window.innerHeight,
         background: 0x1a1a2e
@@ -85,6 +87,7 @@ function creerGrille(mapContainer) {
             grille[gx][gy] = tile;
         }
     }
+
     return grille;
 }
 
@@ -100,7 +103,6 @@ async function init() {
     mapContainer.y = window.innerHeight / 2 - (GRID_SIZE - 1) * (TILE_HEIGHT / 2);
 
     const grille = creerGrille(mapContainer);
-
     const joueur = creerPersonnage(0x4488ff);
     let joueurGrilleX = 2;
     let joueurGrilleY = 2;
@@ -123,10 +125,12 @@ async function init() {
         if (cell.x >= 0 && cell.x < GRID_SIZE && cell.y >= 0 && cell.y < GRID_SIZE) {
 
             if (selectedTile) {
+
                 dessinerTile(selectedTile, selectedOriginalColor);
             }
 
             const tile = grille[cell.x][cell.y];
+
             selectedOriginalColor = getCouleurTile(cell.x, cell.y);
             dessinerTile(tile, 0xffff00, 0xaaaa00);
             selectedTile = tile;
