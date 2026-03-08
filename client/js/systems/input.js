@@ -20,6 +20,28 @@ export class InputSystem {
                 this.combatSystem.finTourJoueur();
             }
         });
+
+        this.creerBoutonFinTour();
+    }
+
+    creerBoutonFinTour() {
+        const btn = document.createElement('button');
+        btn.textContent = 'Fin de tour (E)';
+        btn.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #2244aa;
+            color: white;
+            border: 2px solid #4466dd;
+            border-radius: 6px;
+            cursor: pointer;
+            z-index: 10;
+        `;
+        btn.addEventListener('click', () => this.combatSystem.finTourJoueur());
+        document.body.appendChild(btn);
     }
 
     getCellFromEvent(event) {

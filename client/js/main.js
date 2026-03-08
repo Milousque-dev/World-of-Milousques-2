@@ -33,21 +33,17 @@ async function init() {
     const mapContainer = creerMapContainer(app);
     const grille = creerGrille(mapContainer);
 
-    // Entités
     const player = new Player(2, 2, mapContainer);
     const ennemi1 = new Enemy(7, 7, mapContainer);
 
-    // HUD
     const hud = new HUD(app);
 
-    // Systèmes
     const combatSystem = new CombatSystem(player, [ennemi1], grille, hud);
     const inputSystem = new InputSystem(app, mapContainer, combatSystem);
 
     combatSystem.init();
     inputSystem.init();
 
-    // Boucle de jeu
     app.ticker.add(() => {
         combatSystem.update();
     });

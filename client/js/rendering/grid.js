@@ -2,9 +2,6 @@ import { GRID_SIZE } from '../constants.js';
 import { grilleVersEcran } from '../utils/coordinates.js';
 import { dessinerTile, getCouleurTile } from './tile.js';
 
-/**
- * Crée la grille de jeu complète
- */
 export function creerGrille(mapContainer) {
     const grille = [];
 
@@ -20,9 +17,6 @@ export function creerGrille(mapContainer) {
     return grille;
 }
 
-/**
- * Crée une tuile à une position donnée
- */
 function creerTileAPosition(gx, gy) {
     const pos = grilleVersEcran(gx, gy);
     const tile = new PIXI.Graphics();

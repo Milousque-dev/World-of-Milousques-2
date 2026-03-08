@@ -19,13 +19,14 @@ export class Combatant {
 
         this.sprite = this.creerSprite(config.couleur);
         this.updatePosition();
-        mapContainer.appendChild(this.sprite);
+        mapContainer.addChild(this.sprite);
     }
 
     creerSprite(couleur) {
 
         const sprite = new PIXI.Graphics();
         sprite.rect(-12, -40, 24, 40);
+        sprite.fill(couleur);
         return sprite;
     }
 
@@ -51,7 +52,7 @@ export class Combatant {
         this.sprite.zIndex = zIndex;
     }
 
-    debuterTour() {
+    debutTour() {
 
         this.pa = this.paMax;
         this.pm = this.pmMax;

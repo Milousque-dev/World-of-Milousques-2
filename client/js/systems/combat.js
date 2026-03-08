@@ -14,12 +14,10 @@ export class CombatSystem {
 
         this.turnManager = new TurnManager();
 
-        // État
-        this.tilesAttaque = [];      // cases d'attaque affichées
-        this.tilesIlluminees = [];   // cases de déplacement affichées
+        this.tilesAttaque = [];
+        this.tilesIlluminees = []; 
         this.enAnimation = false;
 
-        // Animation de déplacement (repris de MovementSystem)
         this.cheminActuel = null;
         this.etapeChemin = 0;
         this.progression = 0;
@@ -27,18 +25,12 @@ export class CombatSystem {
         this.callbackFinDeplacement = null;
     }
 
-    /**
-     * Lance le combat
-     */
     init() {
         const tousLesCombattants = [this.player, ...this.ennemis];
         this.turnManager.initCombat(tousLesCombattants);
         this.prochainTour();
     }
 
-    /**
-     * Passe au tour suivant
-     */
     prochainTour() {
         const combattant = this.turnManager.prochainTour();
 
@@ -57,31 +49,23 @@ export class CombatSystem {
         }
     }
 
-    /**
-     * Tour du joueur : afficher les options
-     */
     debutTourJoueur() {
         this.afficherCasesAtteignables(this.player);
         this.afficherCasesAttaque(this.player);
     }
 
-    /**
-     * Gère le clic du joueur pendant son tour
-     */
     handleClick(cellX, cellY) {
         if (this.enAnimation) return;
 
         const combattant = this.turnManager.getCombattantActuel();
         if (!(combattant instanceof Player)) return;
 
-        // Vérifier si on clique sur un ennemi à portée (attaque)
         const ennemiCible = this.getEnnemiSurCase(cellX, cellY);
         if (ennemiCible && this.estCaseAttaque(cellX, cellY)) {
             this.attaquer(this.player, ennemiCible);
             return;
         }
 
-        // Sinon, essayer de se déplacer
         if (this.estCaseAtteignable(cellX, cellY)) {
             this.lancerDeplacement(this.player, cellX, cellY, () => {
                 this.rafraichirUI();
@@ -89,25 +73,19 @@ export class CombatSystem {
         }
     }
 
-    /**
-     * Le joueur termine son tour manuellement
-     */
     finTourJoueur() {
         if (this.enAnimation) return;
         this.effacerTout();
         this.prochainTour();
     }
 
-    // --- Attaque ---
-
     attaquer(attaquant, cible) {
         if (attaquant.pa < COUT_PA_ATTAQUE) return;
         if (!attaquant.estAPortee(cible, attaquant.porteeAttaque)) return;
 
-        attaquant.depensePA(COUT_PA_ATTAQUE);
+        attaquant.depenserPA(COUT_PA_ATTAQUE);
         cible.subirDegats(attaquant.degats);
 
-        // Flash visuel sur la cible
         this.flashDegats(cible);
 
         this.hud.updateStats(this.turnManager.getCombattantActuel());
@@ -118,7 +96,6 @@ export class CombatSystem {
             this.hud.afficherMessage(`${cible.nom} est vaincu !`);
         }
 
-        // Si c'est le tour du joueur, rafraîchir l'affichage
         if (attaquant instanceof Player) {
             this.rafraichirUI();
         }
@@ -132,10 +109,8 @@ export class CombatSystem {
         }, 200);
     }
 
-    // --- IA Ennemi ---
-
     debutTourEnnemi(ennemi) {
-        // Petit délai pour que le joueur voie que c'est le tour de l'ennemi
+
         setTimeout(() => {
             this.executerIA(ennemi);
         }, 500);
@@ -147,7 +122,6 @@ export class CombatSystem {
             return;
         }
 
-        // Si à portée d'attaque → attaquer
         if (ennemi.estAPortee(this.player, ennemi.porteeAttaque) && ennemi.pa >= COUT_PA_ATTAQUE) {
             this.attaquer(ennemi, this.player);
 
@@ -156,7 +130,6 @@ export class CombatSystem {
                 return;
             }
 
-            // Essayer d'attaquer encore si assez de PA
             if (ennemi.estAPortee(this.player, ennemi.porteeAttaque) && ennemi.pa >= COUT_PA_ATTAQUE) {
                 setTimeout(() => {
                     this.attaquer(ennemi, this.player);
@@ -169,13 +142,12 @@ export class CombatSystem {
             return;
         }
 
-        // Sinon → se rapprocher du joueur
         if (ennemi.pm > 0) {
             const destination = this.trouverCaseVersCible(ennemi, this.player);
 
             if (destination) {
                 this.lancerDeplacement(ennemi, destination.x, destination.y, () => {
-                    // Après le déplacement, essayer d'attaquer
+
                     if (ennemi.estAPortee(this.player, ennemi.porteeAttaque) && ennemi.pa >= COUT_PA_ATTAQUE) {
                         setTimeout(() => {
                             this.attaquer(ennemi, this.player);
@@ -197,12 +169,10 @@ export class CombatSystem {
 
         if (casesAccessibles.length === 0) return null;
 
-        // Filtrer les cases occupées
         const casesLibres = casesAccessibles.filter(c => !this.getCombattantSurCase(c.x, c.y));
 
         if (casesLibres.length === 0) return null;
 
-        // Trouver la case la plus proche de la cible
         let meilleure = null;
         let meilleureDistance = Infinity;
 
@@ -223,8 +193,6 @@ export class CombatSystem {
         }, 300);
     }
 
-    // --- Déplacement (partagé joueur/ennemi) ---
-
     lancerDeplacement(combattant, destX, destY, callback) {
         const chemin = trouverChemin(combattant.grilleX, combattant.grilleY, destX, destY);
         if (!chemin || chemin.length < 2) {
@@ -232,7 +200,7 @@ export class CombatSystem {
             return;
         }
 
-        combattant.depensePM(chemin.length - 1);
+        combattant.depenserPM(chemin.length - 1);
         this.effacerTout();
 
         this.cheminActuel = chemin;
@@ -287,14 +255,12 @@ export class CombatSystem {
         }
     }
 
-    // --- Affichage des cases ---
-
     afficherCasesAtteignables(combattant) {
         this.effacerCasesAtteignables();
         const cases = getCasesAtteignables(combattant.grilleX, combattant.grilleY, combattant.pm);
 
         for (const c of cases) {
-            // Ne pas illuminer les cases occupées
+
             if (this.getCombattantSurCase(c.x, c.y)) continue;
 
             const tile = this.grille[c.x][c.y];
@@ -342,8 +308,6 @@ export class CombatSystem {
         this.afficherCasesAttaque(this.player);
         this.hud.updateStats(this.player);
     }
-
-    // --- Utilitaires ---
 
     estCaseAtteignable(x, y) {
         return this.tilesIlluminees.some(c => c.x === x && c.y === y);

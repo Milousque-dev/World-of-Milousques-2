@@ -1,22 +1,13 @@
 import { GRID_SIZE, DIRECTIONS } from '../constants.js';
 
-/**
- * Calcule la distance Manhattan entre deux points
- */
 function calculerDistanceManhattan(ax, ay, bx, by) {
     return Math.abs(ax - bx) + Math.abs(ay - by);
 }
 
-/**
- * Vérifie si une position est dans les limites de la grille
- */
 function estDansGrille(x, y) {
     return x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE;
 }
 
-/**
- * Retourne toutes les cases atteignables depuis une position avec un nombre de PM donné
- */
 export function getCasesAtteignables(startX, startY, pm) {
     const atteignables = [];
     const visited = {};
@@ -47,9 +38,6 @@ export function getCasesAtteignables(startX, startY, pm) {
     return atteignables;
 }
 
-/**
- * Trouve le chemin le plus court entre deux positions avec l'algorithme A*
- */
 export function trouverChemin(startX, startY, endX, endY) {
     const openSet = [{
         x: startX,
@@ -95,9 +83,6 @@ export function trouverChemin(startX, startY, endX, endY) {
     return null;
 }
 
-/**
- * Reconstruit le chemin à partir du nœud final
- */
 function reconstruireChemin(node) {
     const chemin = [];
     let current = node;

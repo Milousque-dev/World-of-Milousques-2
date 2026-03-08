@@ -1,8 +1,5 @@
 import { TILE_WIDTH, TILE_HEIGHT } from '../constants.js';
 
-/**
- * Convertit des coordonnées de grille en coordonnées écran isométriques
- */
 export function grilleVersEcran(grilleX, grilleY) {
     return {
         x: (grilleX - grilleY) * (TILE_WIDTH / 2),
@@ -10,9 +7,6 @@ export function grilleVersEcran(grilleX, grilleY) {
     };
 }
 
-/**
- * Convertit des coordonnées écran en coordonnées de grille
- */
 export function ecranVersGrille(ecranX, ecranY) {
     return {
         x: Math.round((ecranX / (TILE_WIDTH / 2) + ecranY / (TILE_HEIGHT / 2)) / 2),
